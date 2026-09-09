@@ -1,0 +1,4 @@
+# Odin1 udev 规则（Manifold Tech 官方 README 参考）
+# 安装: 复制到 /etc/udev/rules.d/99-odin-usb.rules 后执行
+#   sudo udevadm control --reload-rules && sudo udevadm trigger
+SUBSYSTEM=="usb", ATTR{idVendor}=="2207", ATTR{idProduct}=="0019", MODE="0666", GROUP="plugdev"
