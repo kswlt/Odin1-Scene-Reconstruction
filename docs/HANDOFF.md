@@ -50,3 +50,10 @@
   3. Container auto-starts via compose restart policy; verify `docker exec odin_ros lsusb`
   4. `scripts/ros/patient_start.sh` -> verify hz via final_check.sh
 - If VBoxUSBMon restarts on boot: stop again if interference recurs
+
+## Update 2026-09-09 19:30 JST (FINAL)
+- Environment: COMPLETE and verified once end-to-end (17:31-17:45: driver connect 6s, all topics, recorddata 156MB, save_map 501KB valid)
+- CURRENT BLOCKER: SDK vendor control (lidar_get_version) times out despite device enumerating in Windows/WSL/Docker and standard control working. All software recovery exhausted (see PROGRESS.md). Device is attached (usbipd 1-4 Attached, WSL Device 003)
+- Post-reboot reality: usbipd bind is NOT persistent; xHCI controller can come up CM_PROB_DISABLED_SERVICE; USB class UpperFilters may retain nxusbf. Recovery sequence now scripted: reenumerate_odin -> refresh_bind_attach (see scripts/windows/)
+- To continue when device vendor control recovers: attach_odin.ps1 -> patient_start.sh -> final_check.sh (all in repo scripts/)
+- If device never recovers: test with Windows-native SDK build (libusb on Windows) to isolate device vs usbipd; consider different USB cable/port; contact Manifold support with this log

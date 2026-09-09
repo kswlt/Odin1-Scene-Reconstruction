@@ -83,3 +83,10 @@ Status: DONE
 - Actions taken (reversible): VBoxUSBMon stopped (VBoxUSB kept, in use); device bindings retained
 - Resolution: Windows reboot required to reset USB stack; after boot auto-recovery: usbipd bindings persist -> attach_odin.ps1 -> container auto-start -> patient_start.sh
 - Lesson: avoid repeated PnP power cycles; prefer physical replug; after reboot the stack is clean
+
+## 2026-09-09 19:30 JST Stage: final root-cause analysis (vendor control channel)
+- After exhausting all software layers, the SDK vendor control channel (lidar_get_version) times out consistently (5s timeout) while standard control (lsusb -D) always works
+- Excluded (verified): Windows USB stack (2 reboots), physical replug x3, PnP power-cycle x5, usbipd service restarts x4, root-hub restart, xHCI controller remove+rescan, NoMachine filter unloaded (drivers Disabled+Stopped + USB class UpperFilters cleared), VBoxUSBMon stopped, USB class filter remnants cleared
+- Also found & fixed: USB 3.20 xHCI controller stuck in CM_PROB_DISABLED_SERVICE (recovered via pnputil remove/rescan; USB class UpperFilters had stale {nxusbf} entry); Odin bound to VirtualBox USB driver after reboot (usbipd bind is NOT persistent) - fixed by unbind+bind --force
+- 17:31 session remains the ONLY successful hardware connection (all topics + recorddata + save_map verified live). After that session, device vendor control never recovered in any configuration
+- Assessment: device-side vendor control channel / USB PHY degradation; power-cycle does not recover it -> likely hardware-level. Recommend: Windows-native SDK test to confirm device vs usbipd, try different USB cable/port, contact Manifold support
