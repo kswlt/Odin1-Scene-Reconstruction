@@ -1,0 +1,26 @@
+# Odin1 ROS2 Humble 开发容器（compose）
+# 开发配置：privileged + host 网络 + /dev 全量访问（USB passthrough 需要）
+# 生产化时再收缩权限。
+services:
+  odin:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    image: odin-ros2-humble:latest
+    container_name: odin_ros
+    privileged: true
+    network_mode: host
+    ipc: host
+    restart: unless-stopped
+    environment:
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+      - TZ=${TZ:-Asia/Tokyo}
+      - DISPLAY=${DISPLAY:-:0}
+    volumes:
+      - ./workspace:/workspace          # 源码 + build/install（持久化）
+      - ./config:/config                # 本项目配置
+      - ./data:/data                    # 数据根目录（maps/recorddata/...）
+      - ./logs:/logs                    # 日志
+      - /dev/bus/usb:/dev/bus/usb      # USB 动态设备节点（bind mount，必须用卷而非 devices）
+    working_dir: /workspace
+    command: ["sleep", "infinity"]

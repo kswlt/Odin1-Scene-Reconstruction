@@ -36,3 +36,16 @@ WSL 设备节点: crw-rw-rw- 1 root plugdev 189, 2 /dev/bus/usb/001/003（udev 0
 1. **WSL VM 空闲自动关闭**：所有 `wsl -- bash -c` 会话退出后 VM 会终止，usbipd attach 随之掉线、dockerd 停止。保持常驻：`wsl -d Ubuntu -- bash -c 'while true; do sleep 120; done'`（后台）或打开交互终端。
 2. **nxusbf 过滤器**：usbipd bind 报 `Unknown USB filter 'nxusbf'`，attach 报 `Device in error state` 时，用 `usbipd bind --force` 重建。
 3. **WSL 直连外网受限**：apt/curl/dockerd 均配置走本地 Clash 代理 `http://172.22.0.1:7890`。
+
+## 2026-09-09 Stage: Driver hardware connection + ROS topics LIVE
+Status: DONE
+- Docker image odin-ros2-humble:latest built (ros:humble-ros-base-jammy, OpenCV 4.5.4 single version)
+- Official driver v0.14.3 (commit a592cf2) built via ./script/build_ros2.sh (colcon, 52s, warnings only)
+- ROOT CAUSE FIX: compose `devices: /dev/bus/usb` did NOT expose device nodes; switched to bind mount volume `- /dev/bus/usb:/dev/bus/usb` -> container can open /dev/bus/usb/001/00X
+- Device power-cycle (Disable/Enable-PnpDevice) per official FAQ 5.1/5.6 resolved "missex ok response" -> software connection successful in 6s
+- Device firmware live: kernel V5.10.209, mcu V1.5.2, soc V0.13.1, daemon V0.6.1, slam V0.12.1; driver 0.14.3, device-recommended firmware 0.13.0 (no upgrade needed)
+- calib.yaml fetched from device -> /root/.ros/odin_ros_driver + backup config/odin/calib_N120100104.yaml
+- SLAM mode active (custom_map_mode=1), stream config RGB=1 IMU=1 ODOM=1 DTOF=1 CLOUD_SLAM=1
+- Topic rates (measured): imu 398.9Hz, odometry 10.1Hz, cloud_render 10.8Hz, cloud_raw ~4.4Hz, image ~2.9Hz (USB2-limited via usbipd vhci; full rate needs USB3 port)
+- Image: 1600x1296 bgr8; cloud_raw: frame_id=lidar, 49152 pts, fields x/y/z(float32)+intensity
+- Git: see next commit

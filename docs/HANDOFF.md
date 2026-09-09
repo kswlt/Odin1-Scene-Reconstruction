@@ -1,36 +1,29 @@
-# HANDOFF — Odin1 Scene Reconstruction 交接文件
+# HANDOFF — Odin1 Scene Reconstruction
 
-> 任何新 Agent：clone 本仓库后先读本文件 + README.md + docs/PROGRESS.md，即可无缝继续。
+## Current state (2026-09-09 17:35 JST)
+**THE CORE PIPELINE IS LIVE**: Windows -> usbipd -> WSL2 -> Docker -> ROS2 Humble -> odin_ros_driver v0.14.3 -> Odin1 connected, streaming.
 
-## 当前真实状态
+## Environment
+- Windows 11 Pro Workstation Build 26200.9168; WSL2 2.7.12.0 (kernel 6.18.33.2-2); Ubuntu 22.04.4 (root, systemd on)
+- docker-ce 29.8.0 + Compose v5.5.1 in WSL (NOT Docker Desktop daemon); proxy via Clash 172.22.0.1:7890 (apt/dockerd/git)
+- Project: /root/projects/Odin1-Scene-Reconstruction (WSL ext4)
 
-- **Environment**：Windows 11 Pro Workstation (Build 26200.9168) / WSL2 2.7.12.0 (kernel 6.18.33.2-2) / Ubuntu 22.04.4 LTS (jammy, WSL2, 默认用户 root) / systemd 已启用 / **docker-ce 29.8.0 + Compose v5.5.1**
-- **Working features**：
-  - WSL 外网正常（apt/curl/dockerd 走 Clash 代理 `http://172.22.0.1:7890`）
-  - GitHub SSH：经 Clash 代理认证通过
-  - **完整 USB 链路已验证**：Windows usbipd (BUSID 1-9, bind --force) → WSL `lsusb` 可见 `2207:0019 hawk` → **Docker 容器内可见 `2207:0019`**（`--privileged -v /dev/bus/usb:/dev/bus/usb`）
-  - udev 规则生效：设备节点 `crw-rw-rw- root plugdev`
-  - 防火墙 TCP 3240 放行；项目 Git 仓库已初始化并 push（HEAD: 60e9e22）
-- **Broken features / 注意事项**：
-  - **WSL VM 空闲自动关闭**（所有 wsl 会话退出后 VM 终止，attach 掉线、dockerd 停止）→ 必须保持常驻会话。当前由后台任务 `wsl -d Ubuntu -- bash -c 'while true; do sleep 120; done'` 保活。用户使用时应打开交互终端。
-  - usbipd 的 `nxusbf` 过滤器警告 → 用 `bind --force`（已固化到 attach_odin.ps1）
-  - WSL→GitHub 22/443 直连超时（必须经代理）
-- **Current blocker**：无
-- **Exact commands to continue**：
-  ```bash
-  # Windows: 确保 WSL 常驻 + USB attach（脚本已自动处理）
-  powershell -ExecutionPolicy Bypass -File C:\Users\Admin\Desktop\odin1\scripts\windows\attach_odin.ps1
-  # WSL 内
-  wsl -d Ubuntu
-  cd /root/projects/Odin1-Scene-Reconstruction
-  docker compose build    # 构建 ROS2 Humble + Odin 依赖镜像
-  ```
-- **Latest successful test**：`docker run --privileged -v /dev/bus/usb:/dev/bus/usb ubuntu:22.04` → 设备列表含 `2207:0019`
-- **Important paths**：WSL 项目 `/root/projects/Odin1-Scene-Reconstruction`；GitHub `git@github.com:kswlt/Odin1-Scene-Reconstruction.git` (main)；脚本 `scripts/windows/*.ps1`、`scripts/linux/install_docker.sh`、`scripts/linux/setup_apt_proxy.sh`
-- **Latest Git commit**：`60e9e22`（feat: add windows usbipd odin workflow）；下一提交：docker engine stage
+## Working
+- USB: usbipd 4.4.1, Odin1 2207:0019 (BUSID dynamic, currently 1-9), bind --force needed (nxusbf filter), attach -> WSL -> container (bind mount /dev/bus/usb)
+- Docker: image odin-ros2-humble:latest; container odin_ros (compose up -d, privileged+host net, sleep infinity)
+- Driver: built OK; connection OK after device power-cycle; SLAM mode=1; all core topics publishing real data
+- calib.yaml: fetched, backed up to config/odin/calib_N120100104.yaml
 
-## 下一步
+## How to continue (exact commands)
+1. Keep WSL VM alive: open a wsl terminal (or background `wsl -d Ubuntu -- bash -c 'while true; do sleep 120; done'`)
+2. Attach USB if dropped: PowerShell admin -> scripts/windows/attach_odin.ps1 (auto bind --force + attach)
+3. If "missex ok response": scripts/windows/powercycle_odin.ps1 (Disable/Enable-PnpDevice), then restart driver
+4. Start driver:
+   docker exec odin_ros bash -c 'source /opt/ros/humble/setup.bash && source /workspace/install/setup.bash && cd /workspace && nohup ros2 run odin_ros_driver host_sdk_sample --ros-args -p config_file:=/workspace/src/odin_ros_driver/config/control_command.yaml > /logs/driver_core.log 2>&1 &'
+5. Check topics: docker exec odin_ros bash -c 'source /opt/ros/humble/setup.bash && source /workspace/install/setup.bash && ros2 topic list'
+6. Driver log: /root/projects/Odin1-Scene-Reconstruction/logs/driver_core.log
 
-1. `docker compose build` 构建 ROS2 Humble 镜像（Dockerfile 已就绪：docker/Dockerfile + entrypoint.sh + compose.yaml）
-2. Clone 官方 `manifoldsdk/odin_ros_driver`（v0.14.3，需固件 v0.14.0）到 `workspace/src/odin_ros_driver` → colcon 构建
-3. 容器内启动 Driver → 验证连接/calib.yaml → ROS Topics → SLAM → recorddata → save_map
+## Blockers / next
+- None blocking. Next: SLAM verification (move device, check cloud_slam/path), recorddata, save_map, RViz via WSLg, diagnostics, README finalize
+- Note: RGB ~2.9Hz / cloud_raw ~4.4Hz due to USB2 vhci bandwidth; try USB3 port on Windows side to improve
+- Official launch file needs rviz2 (installed) + X display; headless core run uses `ros2 run host_sdk_sample` directly
