@@ -41,3 +41,12 @@
 - RViz2 verified running via WSLg. All milestones (driver connect, topics, recorddata, save_map) were LIVE-verified earlier in session
 - USB vhci link degraded after ~1h (control channel hang). Recovery: user physically replugged Odin1 (USB3 port). After replug: run scripts/windows/attach_odin.ps1 (admin) then scripts/ros/restart_driver.sh (or patient_start.sh)
 - If driver hangs at "Hardware connected": powercycle_odin.ps1 -> restart; if still hangs: physical replug
+
+## Update 2026-09-09 19:00 JST
+- BLOCKED (host-level, requires Windows reboot): USB3 stack degraded after hub restart; usbipd service crashed ("a reboot should fix that")
+- AFTER REBOOT, exact commands (auto-run by agent):
+  1. Ensure WSL keep-alive: `wsl -d Ubuntu -- bash -c 'while true; do sleep 120; done'` (background)
+  2. `powershell -File scripts/windows/attach_odin.ps1` (bindings persist; script re-binds if needed)
+  3. Container auto-starts via compose restart policy; verify `docker exec odin_ros lsusb`
+  4. `scripts/ros/patient_start.sh` -> verify hz via final_check.sh
+- If VBoxUSBMon restarts on boot: stop again if interference recurs

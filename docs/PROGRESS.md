@@ -73,3 +73,13 @@ Status: DONE
 - Official remedy: physical unplug/replug (FAQ 5.1/5.7) - requested from user; prefer USB3 port
 - Also observed: driver crash (segfault/heap corruption) during SIGTERM shutdown when stop-stream times out - restart via pkill -9 avoids it; zombies accumulate harmlessly until container recreate
 - NOTE for future sessions: usbipd attach may drop after ~30-50min idle; keep WSL alive + re-attach; if vendor channel hangs, physical replug
+
+## 2026-09-09 19:00 JST Stage: USB link degradation - root cause chain
+- Root cause chain for post-17:45 USB instability:
+  1. usbipd attach/cycles over ~2h + repeated PnP power-cycles degrade the Windows USB3 stack
+  2. Vendor control transfers (SDK lidar_get_version) hang while standard control (lsusb -D) still works
+  3. VirtualBox USB filter drivers nxusbf/nxusbh + VBoxUSBMon internal errors (System event log) interfere with usbipd (bind --force needed from day 1)
+  4. USB3 root hub restart wedged usbipd service ("The service is currently not running; a reboot should fix that")
+- Actions taken (reversible): VBoxUSBMon stopped (VBoxUSB kept, in use); device bindings retained
+- Resolution: Windows reboot required to reset USB stack; after boot auto-recovery: usbipd bindings persist -> attach_odin.ps1 -> container auto-start -> patient_start.sh
+- Lesson: avoid repeated PnP power cycles; prefer physical replug; after reboot the stack is clean
