@@ -20,6 +20,7 @@ services:
       - ./workspace:/workspace          # 源码 + build/install（持久化）
       - ./config:/config                # 本项目配置
       - ./data:/data                    # 数据根目录（maps/recorddata/...）
+      - ./data/recorddata:/workspace/src/odin_ros_driver/recorddata  # recorddata 持久化到 data/recorddata
       - ./logs:/logs                    # 日志
       - /dev/bus/usb:/dev/bus/usb      # USB 动态设备节点（bind mount，必须用卷而非 devices）
     working_dir: /workspace

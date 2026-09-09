@@ -27,3 +27,7 @@
 - None blocking. Next: SLAM verification (move device, check cloud_slam/path), recorddata, save_map, RViz via WSLg, diagnostics, README finalize
 - Note: RGB ~2.9Hz / cloud_raw ~4.4Hz due to USB2 vhci bandwidth; try USB3 port on Windows side to improve
 - Official launch file needs rviz2 (installed) + X display; headless core run uses `ros2 run host_sdk_sample` directly
+
+## Update 2026-09-09 17:45 JST
+- SLAM mode=1 streaming with recorddata ON and path publishing; map saving verified to /data/maps
+- Next: RViz via WSLg, diagnostics, README finalize, full workflow scripts (start_odin.sh/status.sh)

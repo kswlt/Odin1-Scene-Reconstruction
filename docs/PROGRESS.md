@@ -49,3 +49,13 @@ Status: DONE
 - Topic rates (measured): imu 398.9Hz, odometry 10.1Hz, cloud_render 10.8Hz, cloud_raw ~4.4Hz, image ~2.9Hz (USB2-limited via usbipd vhci; full rate needs USB3 port)
 - Image: 1600x1296 bgr8; cloud_raw: frame_id=lidar, 49152 pts, fields x/y/z(float32)+intensity
 - Git: see next commit
+
+## 2026-09-09 Stage: SLAM config + recorddata + save_map LIVE
+Status: DONE
+- Project mapping config: config/odin/control_command_mapping.yaml (recorddata=1, showpath=1, custom_map_mode=1, mapping_result_dest_dir=/data/maps); pristine copy saved as control_command.yaml.original
+- KEY FINDING: driver IGNORES `config_file` ROS param; hardcodes package source dir config/control_command.yaml (get_package_source_directory). Deploy mapping config to that path (official config mechanism, not source modification)
+- recorddata ACTIVE: data/recorddata/20260909_174020/ -> OdinImage.bin, MT*.olx, OdinPose.bin, OdinIMU.bin, calib_online.yaml, image/info.txt, image/cam_in_ex.txt; ~156MB in 35s (USB2-limited; official 10min~9.5GB at USB3)
+- save_map VERIFIED: /data/maps/map_20260909_174113.bin (501,982 B, md5 6b49d478ca6be8040fc552d860b4555a, device gen 911ms)
+- Topic rates (SLAM mode): imu 399.7Hz, odometry 10.4Hz, path 10.3Hz, cloud_slam 9.3Hz (16034 pts, frame odom), cloud_render 5.0Hz
+- compose: nested bind ./data/recorddata -> driver recorddata dir; restart: unless-stopped
+- Git: see next commit
