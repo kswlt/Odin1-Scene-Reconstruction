@@ -36,3 +36,8 @@
 - rviz2 added to Dockerfile; image rebuild running (task may take several minutes via proxy)
 - After rebuild: docker compose up -d --force-recreate, start driver, then ros2 run rviz2 (WSLg window appears on Windows desktop)
 - All workflow scripts in place: scripts/ros/*, scripts/linux/*, scripts/windows/*
+
+## Update 2026-09-09 18:35 JST
+- RViz2 verified running via WSLg. All milestones (driver connect, topics, recorddata, save_map) were LIVE-verified earlier in session
+- USB vhci link degraded after ~1h (control channel hang). Recovery: user physically replugged Odin1 (USB3 port). After replug: run scripts/windows/attach_odin.ps1 (admin) then scripts/ros/restart_driver.sh (or patient_start.sh)
+- If driver hangs at "Hardware connected": powercycle_odin.ps1 -> restart; if still hangs: physical replug

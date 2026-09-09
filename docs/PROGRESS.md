@@ -66,3 +66,10 @@ Status: DONE
 - docs/odin-version-compatibility.md added (device firmware 0.13.x compatible, no upgrade needed)
 - RViz: WSLg mounts added to compose (/tmp/.X11-unix + /mnt/wslg); rviz2 added to Dockerfile (rebuild in progress)
 - Git: see next commit
+
+## 2026-09-09 18:35 JST Stage: RViz up + usbipd link degradation note
+- RViz2 RUNNING via WSLg (OpenGL 4.5, window on Windows desktop) with image odin-ros2-humble (rviz2 in Dockerfile)
+- Observed: after ~1h of session + repeated software power-cycles, usbipd vhci link degrades: device enumerates (Device 004->009), opens fine (lsusb -D OK at 17:25), but vendor control channel hangs at "Hardware connected, starting software connection..." (no version read, no timeout)
+- Official remedy: physical unplug/replug (FAQ 5.1/5.7) - requested from user; prefer USB3 port
+- Also observed: driver crash (segfault/heap corruption) during SIGTERM shutdown when stop-stream times out - restart via pkill -9 avoids it; zombies accumulate harmlessly until container recreate
+- NOTE for future sessions: usbipd attach may drop after ~30-50min idle; keep WSL alive + re-attach; if vendor channel hangs, physical replug
