@@ -7,12 +7,14 @@
 
 | 时间 (JST) | 阶段 | 状态 | 说明 | Commit |
 |---|---|---|---|---|
-| 2026-09-09 | 项目初始化 | PENDING | 创建目录结构、README、.gitignore、docs 骨架 | - |
+| 2026-09-09 | 项目初始化 | DONE | 目录结构、README、.gitignore、docs 骨架，首次 push 成功 | `e4d653b` |
+| 2026-09-09 | 环境审计 | DONE | 详见 docs/environment-audit.md；修复 WSL 网络（.wslconfig mirrored→nat）；配置 SSH 走 Clash 代理 | `(待提交)` |
 
 ## 当前状态摘要
 
-- **总进度**：初始化中
+- **总进度**：环境审计完成
 - **环境**：Windows 11 26200 / WSL2 2.7.12 / Ubuntu 22.04.4 / usbipd 4.4.1
-- **Odin1 硬件**：已检测到（usbipd BUSID 1-9, VID:PID 2207:0019, device "hawk"）
-- **Docker**：Docker Desktop 已装但守护进程未运行；计划采用 WSL 内原生 Docker Engine（USB passthrough 更可靠）
+- **Odin1 硬件**：已插入，usbipd BUSID `1-9`，VID:PID `2207:0019`，设备名 `hawk`，未 bind/attach
+- **Docker**：采用 WSL 内原生 docker-ce（未安装，下一步）
 - **ROS**：未安装（计划容器内 ROS2 Humble）
+- **GitHub**：SSH 经 Clash 代理正常；remote `git@github.com:kswlt/Odin1-Scene-Reconstruction.git` (main)
