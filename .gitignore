@@ -1,0 +1,44 @@
+# --- Odin / ROS build artifacts ---
+workspace/build/
+workspace/install/
+workspace/log/
+build/
+install/
+log/
+*.pyc
+
+# --- Captured data (large, NOT for git) ---
+data/raw/
+data/recorddata/
+data/maps/
+data/pointcloud/
+data/images/
+data/mesh/
+data/gaussian/
+*.bag
+*.db3
+*.mcap
+*.ply
+*.pcd
+*.las
+*.laz
+*.bin
+*.olx
+*.lx
+
+# --- Logs ---
+logs/
+*.log
+
+# --- Secrets & credentials ---
+.env
+*.pem
+*.key
+id_ed25519
+id_rsa
+
+# --- OS / editor ---
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/
