@@ -59,3 +59,10 @@ Status: DONE
 - Topic rates (SLAM mode): imu 399.7Hz, odometry 10.4Hz, path 10.3Hz, cloud_slam 9.3Hz (16034 pts, frame odom), cloud_render 5.0Hz
 - compose: nested bind ./data/recorddata -> driver recorddata dir; restart: unless-stopped
 - Git: see next commit
+
+## 2026-09-09 Stage: workflow scripts + README + RViz (WSLg)
+- Scripts: start_recording/stop_recording/save_map/check_topics (ros), start_odin/status/diagnose (linux), powercycle_odin.ps1 (windows)
+- README rewritten as full repro guide (architecture, install, workflows, troubleshooting, 3D pipeline plan)
+- docs/odin-version-compatibility.md added (device firmware 0.13.x compatible, no upgrade needed)
+- RViz: WSLg mounts added to compose (/tmp/.X11-unix + /mnt/wslg); rviz2 added to Dockerfile (rebuild in progress)
+- Git: see next commit

@@ -31,3 +31,8 @@
 ## Update 2026-09-09 17:45 JST
 - SLAM mode=1 streaming with recorddata ON and path publishing; map saving verified to /data/maps
 - Next: RViz via WSLg, diagnostics, README finalize, full workflow scripts (start_odin.sh/status.sh)
+
+## Update 2026-09-09 18:10 JST
+- rviz2 added to Dockerfile; image rebuild running (task may take several minutes via proxy)
+- After rebuild: docker compose up -d --force-recreate, start driver, then ros2 run rviz2 (WSLg window appears on Windows desktop)
+- All workflow scripts in place: scripts/ros/*, scripts/linux/*, scripts/windows/*

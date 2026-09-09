@@ -47,6 +47,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-humble-rosidl-default-runtime \
     ros-humble-ros2launch \
     ros-humble-ament-cmake \
+    ros-humble-rviz2 \
     # 工具
     usbutils \
     iproute2 \
