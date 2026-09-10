@@ -90,3 +90,10 @@ Status: DONE
 - Also found & fixed: USB 3.20 xHCI controller stuck in CM_PROB_DISABLED_SERVICE (recovered via pnputil remove/rescan; USB class UpperFilters had stale {nxusbf} entry); Odin bound to VirtualBox USB driver after reboot (usbipd bind is NOT persistent) - fixed by unbind+bind --force
 - 17:31 session remains the ONLY successful hardware connection (all topics + recorddata + save_map verified live). After that session, device vendor control never recovered in any configuration
 - Assessment: device-side vendor control channel / USB PHY degradation; power-cycle does not recover it -> likely hardware-level. Recommend: Windows-native SDK test to confirm device vs usbipd, try different USB cable/port, contact Manifold support
+
+## 2026-09-10 14:00 JST Stage: firmware upgrade event + device not enumerating
+- User performed Odin1 firmware upgrade (target version unknown; device last read soc V0.13.1 at 13:30 before disconnect)
+- After upgrade + PC reboot: Odin1 NOT enumerated on Windows at all (no PnP node, no USB event, no bootloader/DFU node, no 2207 ghost). Verified: USB bus healthy (camera/BT/keyboard OK), xHCI controller OK, NoMachine filters Disabled/Stopped, new USB cable tested, indicator light on
+- Diagnosis: device-side USB data link unresponsive (hardware-level). Firmware brick would still enumerate (bootloader mode); total absence = no USB signal from device
+- Recovery plan: clean USB-C port, test on another PC, contact Manifold support (SN N120100104). Environment fully intact: attach_odin.ps1 -> patient_start.sh -> final_check.sh once device returns
+- Note: driver had connected successfully 13:30:59 (1s, firmware read OK soc V0.13.1) then disconnected 13:32:29 (usbipd high-bandwidth stall pattern, ~90s after stream start) - usbipd transfer-stall instability documented separately

@@ -57,3 +57,7 @@
 - Post-reboot reality: usbipd bind is NOT persistent; xHCI controller can come up CM_PROB_DISABLED_SERVICE; USB class UpperFilters may retain nxusbf. Recovery sequence now scripted: reenumerate_odin -> refresh_bind_attach (see scripts/windows/)
 - To continue when device vendor control recovers: attach_odin.ps1 -> patient_start.sh -> final_check.sh (all in repo scripts/)
 - If device never recovers: test with Windows-native SDK build (libusb on Windows) to isolate device vs usbipd; consider different USB cable/port; contact Manifold support with this log
+
+## Update 2026-09-10 14:00 JST
+- Odin1 currently NOT enumerating on Windows (hardware-level USB link, see PROGRESS.md). Environment intact and ready
+- When device recovers: attach_odin.ps1 -> patient_start.sh -> verify topics; then consider reducing image fps/resolution in control_command.yaml to mitigate usbipd high-bandwidth stall (connection drops ~90s after stream start)
