@@ -55,6 +55,7 @@ class MapPreview(Node):
         self.dirty = False
         self.last_tf_warning_ns = 0
         self.last_quality_report_ns = 0
+        self.quality_file = '/logs/scan_quality.txt'
         self.timer = self.create_timer(period, self.publish_preview)
         self.get_logger().info(
             f'Accumulating {self.input_topic} into {self.get_parameter("output_topic").value} '
@@ -111,6 +112,11 @@ class MapPreview(Node):
         if now - self.last_quality_report_ns > 5_000_000_000:
             self.last_quality_report_ns = now
             quality = 'LOW' if voxel_count < 500 else ('MEDIUM' if voxel_count < 5000 else 'GOOD')
+            try:
+                with open(self.quality_file, 'w', encoding='ascii') as quality_stream:
+                    quality_stream.write(f'QUALITY={quality};VOXELS={voxel_count};POINTS={len(points)}\n')
+            except OSError:
+                pass
             self.get_logger().info(
                 f'SCAN_QUALITY={quality} accumulated_voxels={voxel_count} '
                 f'latest_points={len(points)}; move slowly to increase coverage.')
