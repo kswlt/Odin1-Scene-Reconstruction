@@ -6,6 +6,7 @@ build/
 install/
 log/
 *.pyc
+__pycache__/
 
 # --- Captured data (large, NOT for git) ---
 data/raw/
@@ -25,6 +26,16 @@ data/gaussian/
 *.bin
 *.olx
 *.lx
+
+# --- Local staging / ROS workspace ---
+# Firmware payloads, vendor clones, build output, and runtime logs stay local.
+# Keep only the small first-party live-map preview package in version control.
+.staging/
+workspace/*
+!workspace/src/
+workspace/src/*
+!workspace/src/map_preview/
+!workspace/src/map_preview/**
 
 # --- Logs ---
 logs/
