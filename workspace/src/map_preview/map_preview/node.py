@@ -54,6 +54,7 @@ class MapPreview(Node):
         self.lock = Lock()
         self.dirty = False
         self.last_tf_warning_ns = 0
+        self.last_quality_report_ns = 0
         self.timer = self.create_timer(period, self.publish_preview)
         self.get_logger().info(
             f'Accumulating {self.input_topic} into {self.get_parameter("output_topic").value} '
@@ -105,6 +106,14 @@ class MapPreview(Node):
                 if key in self.voxels or len(self.voxels) < self.max_points:
                     self.voxels[key] = point
             self.dirty = True
+            voxel_count = len(self.voxels)
+        now = self.get_clock().now().nanoseconds
+        if now - self.last_quality_report_ns > 5_000_000_000:
+            self.last_quality_report_ns = now
+            quality = 'LOW' if voxel_count < 500 else ('MEDIUM' if voxel_count < 5000 else 'GOOD')
+            self.get_logger().info(
+                f'SCAN_QUALITY={quality} accumulated_voxels={voxel_count} '
+                f'latest_points={len(points)}; move slowly to increase coverage.')
 
     def publish_preview(self):
         with self.lock:
