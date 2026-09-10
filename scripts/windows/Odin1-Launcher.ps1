@@ -25,7 +25,7 @@ function Start-Hidden([string]$Command) {
 
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Odin1 场景建图启动器'
-$form.Size = New-Object System.Drawing.Size(520, 275)
+$form.Size = New-Object System.Drawing.Size(520, 335)
 $form.StartPosition = 'CenterScreen'
 $form.FormBorderStyle = 'FixedDialog'
 $form.MaximizeBox = $false
@@ -59,7 +59,20 @@ $close.Text = '关闭'
 $close.Location = New-Object System.Drawing.Point(267, 188)
 $close.Size = New-Object System.Drawing.Size(220, 34)
 $close.Font = New-Object System.Drawing.Font('Microsoft YaHei UI', [single]9)
-$form.Controls.AddRange(@($title, $status, $start, $reset, $close))
+
+$saveMap = New-Object System.Windows.Forms.Button
+$saveMap.Text = '保存当前地图'
+$saveMap.Location = New-Object System.Drawing.Point(22, 238)
+$saveMap.Size = New-Object System.Drawing.Size(235, 34)
+$saveMap.Font = New-Object System.Drawing.Font('Microsoft YaHei UI', [single]9)
+
+$openData = New-Object System.Windows.Forms.Button
+$openData.Text = '打开录制数据目录'
+$openData.Location = New-Object System.Drawing.Point(267, 238)
+$openData.Size = New-Object System.Drawing.Size(220, 34)
+$openData.Font = New-Object System.Drawing.Font('Microsoft YaHei UI', [single]9)
+
+$form.Controls.AddRange(@($title, $status, $start, $reset, $close, $saveMap, $openData))
 
 $timer = New-Object System.Windows.Forms.Timer
 $timer.Interval = 1500
@@ -79,6 +92,13 @@ $start.Add_Click({
 $reset.Add_Click({
     $status.Text = '正在重置定位；请静止 2–3 秒。'
     Start-Hidden 'wsl -d Ubuntu -- bash -lc "docker exec odin_ros bash -lc ''source /opt/ros/humble/setup.bash; source /workspace/install/setup.bash; ros2 service call /odin1/reset_algo odin_ros_driver/srv/ResetAlgo \"{value: 1}\"''"'
+})
+$saveMap.Add_Click({
+    $status.Text = '正在保存当前 SLAM 地图…'
+    Start-Hidden 'wsl -d Ubuntu -- bash -lc "cd /root/projects/Odin1-Scene-Reconstruction && bash scripts/ros/save_map.sh scene_manual"'
+})
+$openData.Add_Click({
+    Start-Process explorer.exe '\\wsl.localhost\Ubuntu\root\projects\Odin1-Scene-Reconstruction\data\recorddata'
 })
 $close.Add_Click({ $form.Close() })
 [void]$form.ShowDialog()
